@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
+import org.springframework.http.CacheControl;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,7 @@ public final class ServeSourceEndpoint {
         };
         // Response.
         return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
                 .contentType(mediaType)
                 .body(stream);
     }
