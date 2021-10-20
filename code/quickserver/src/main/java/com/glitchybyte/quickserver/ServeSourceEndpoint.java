@@ -27,9 +27,8 @@ import java.util.List;
 @RestController
 public final class ServeSourceEndpoint {
 
-    private static final String SOURCE_PARAM = "source";
-
     private static final Logger log = LoggerFactory.getLogger(ServeSourceEndpoint.class);
+    private static final String PARAM_SOURCE = "source";
 
     @Autowired
     private ApplicationArguments arguments;
@@ -69,8 +68,8 @@ public final class ServeSourceEndpoint {
 
     private Path getSource() {
         String source = null;
-        if (arguments.containsOption(SOURCE_PARAM)) {
-            final List<String> sources = arguments.getOptionValues(SOURCE_PARAM);
+        if (arguments.containsOption(PARAM_SOURCE)) {
+            final List<String> sources = arguments.getOptionValues(PARAM_SOURCE);
             if (sources.size() > 0) {
                 source = sources.get(0);
             }
