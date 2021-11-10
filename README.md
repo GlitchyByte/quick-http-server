@@ -1,7 +1,7 @@
 # Quick Http Server
 
 Local web server (http only). Useful for local dev.
-Can also be used as an example of a basic Spring Boot Web app.
+Can also be a starting point for a simple Spring Boot Web app.
 
 ## Run it from source
 
