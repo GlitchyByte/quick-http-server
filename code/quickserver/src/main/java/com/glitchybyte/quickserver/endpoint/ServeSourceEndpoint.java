@@ -1,16 +1,18 @@
 // Copyright 2021 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
-package com.glitchybyte.quickserver;
+package com.glitchybyte.quickserver.endpoint;
 
+import com.glitchybyte.quickserver.configuration.AsyncConfiguration;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.http.CacheControl;
-import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +25,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
-public final class ServeSourceEndpoint {
+public class ServeSourceEndpoint {
 
     private static final Logger log = LoggerFactory.getLogger(ServeSourceEndpoint.class);
     private static final String PARAM_SOURCE = "source";
@@ -34,19 +37,20 @@ public final class ServeSourceEndpoint {
     private ApplicationArguments arguments;
 
     @CrossOrigin(origins = "*")
+    @Async(AsyncConfiguration.TASK_EXECUTOR_CONTROLLER)
     @GetMapping("/**")
-    public ResponseEntity<StreamingResponseBody> serveSource(final HttpServletRequest request) {
+    public CompletableFuture<ResponseEntity<StreamingResponseBody>> serveSource(final HttpServletRequest request) {
         final Path source = getSource();
         if ((source == null) || Files.notExists(source)) {
             log.warn("No source defined or source not found!");
-            return ResponseEntity.internalServerError().build();
+            return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
         }
         final Path path;
         if (Files.isDirectory(source)) {
             final String uri = request.getRequestURI();
             path = source.resolve(uri.length() > 0 ? uri.substring(1) : "");
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
-                return ResponseEntity.notFound().build();
+                return CompletableFuture.completedFuture(ResponseEntity.notFound().build());
             }
         } else {
             path = source;
@@ -54,7 +58,7 @@ public final class ServeSourceEndpoint {
         final MediaType mediaType = getMimeType(path);
         if (mediaType == null) {
             log.warn("MediaType not found!");
-            return ResponseEntity.internalServerError().build();
+            return CompletableFuture.completedFuture(ResponseEntity.internalServerError().build());
         }
         final StreamingResponseBody stream = outputStream -> {
             try (final InputStream inputStream = Files.newInputStream(path)) {
@@ -62,10 +66,12 @@ public final class ServeSourceEndpoint {
             }
         };
         // Response.
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache())
-                .contentType(mediaType)
-                .body(stream);
+        return CompletableFuture.completedFuture(
+                ResponseEntity.ok()
+                        .cacheControl(CacheControl.noCache())
+                        .contentType(mediaType)
+                        .body(stream)
+        );
     }
 
     private Path getSource() {
@@ -86,11 +92,13 @@ public final class ServeSourceEndpoint {
         if (!Files.isRegularFile(path)) {
             return null;
         }
+        final String mimeType;
         try {
-            final String mimeType = Files.probeContentType(path);
-            return MediaType.parseMediaType(mimeType);
-        } catch (final IOException | InvalidMediaTypeException e) {
+            final Tika tika = new Tika();
+            mimeType = tika.detect(path);
+        } catch (final IOException e) {
             return null;
         }
+        return MediaType.parseMediaType(mimeType);
     }
 }

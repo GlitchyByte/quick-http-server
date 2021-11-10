@@ -3,7 +3,7 @@
 
 plugins {
     application
-    id("org.springframework.boot") version "2.5.5"
+    id("org.springframework.boot") version "2.5.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
@@ -19,14 +19,20 @@ java {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.apache.tika:tika-core:2.1.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-}
-
-application {
-    mainClass.set("com.glitchybyte.quickserver.App")
 }
 
 tasks.test {
     useJUnitPlatform()
     maxParallelForks = 4
 }
+
+// Setup build info.
+group = "com.glitchybyte.quickserver"
+version = "1.1.0"
+
+application {
+    mainClass.set("com.glitchybyte.quickserver.App")
+}
+
