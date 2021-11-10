@@ -1,7 +1,7 @@
 // Copyright 2021 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
-package com.glitchybyte.quickserver;
+package com.glitchybyte.quickserver.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

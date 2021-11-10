@@ -1,14 +1,13 @@
 // Copyright 2021 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
-package com.glitchybyte.quickserver;
+package com.glitchybyte.quickserver.configuration;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.CallableProcessingInterceptor;
 import org.springframework.web.context.request.async.TimeoutCallableProcessingInterceptor;
@@ -16,40 +15,33 @@ import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
 @Configuration
-@EnableAsync
-public class WebMvcConfig extends WebMvcConfigurationSupport {
+public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-    private static final Logger log = LoggerFactory.getLogger(WebMvcConfig.class);
+    private static final Logger log = LoggerFactory.getLogger(WebMvcConfiguration.class);
 
 //    @Override
 //    protected void addResourceHandlers(final ResourceHandlerRegistry registry) {
+//        // Serves static files.
 //        registry.addResourceHandler("/**")
 //                .addResourceLocations("file:/absolute/path/to/directory/");
 //    }
 //
 //    @Override
 //    protected void addViewControllers(final ViewControllerRegistry registry) {
-//        registry.addViewController("/").setViewName("forward:/index.html");
+//        // Redirects root to index.html.
+//        registry.addViewController("/")
+//                .setViewName("forward:/index.html");
 //    }
 
-    @Bean(name = "asyncExecutor")
-    public ThreadPoolTaskExecutor getAsyncExecutor() {
-        final int processors = Runtime.getRuntime().availableProcessors();
-        log.info("Initializing async task executor: {} processors", processors);
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(Math.max(2, processors));
-        executor.setQueueCapacity(executor.getMaxPoolSize() * 100);
-        executor.setThreadNamePrefix("WebTask-");
-        executor.initialize();
-        return executor;
-    }
+    @Autowired
+    private Executor taskExecutor;
 
     @Override
     protected void configureAsyncSupport(final AsyncSupportConfigurer configurer) {
-        configurer.setTaskExecutor(getAsyncExecutor())
+        configurer.setTaskExecutor((AsyncTaskExecutor) taskExecutor)
                 .setDefaultTimeout(30_000)
                 .registerCallableInterceptors(getCallableProcessingInterceptor());
         super.configureAsyncSupport(configurer);

@@ -38,6 +38,7 @@ public final class ServeSourceEndpoint {
     public ResponseEntity<StreamingResponseBody> serveSource(final HttpServletRequest request) {
         final Path source = getSource();
         if ((source == null) || Files.notExists(source)) {
+            log.warn("No source defined or source not found!");
             return ResponseEntity.internalServerError().build();
         }
         final Path path;
@@ -52,6 +53,7 @@ public final class ServeSourceEndpoint {
         }
         final MediaType mediaType = getMimeType(path);
         if (mediaType == null) {
+            log.warn("MediaType not found!");
             return ResponseEntity.internalServerError().build();
         }
         final StreamingResponseBody stream = outputStream -> {
