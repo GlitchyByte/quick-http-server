@@ -1,2 +1,2 @@
 rootProject.name = "quick-http-server"
-include("quickserver")
+include("gspring", "quickserver")

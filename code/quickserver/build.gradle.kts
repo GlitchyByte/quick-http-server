@@ -18,8 +18,7 @@ java {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.apache.tika:tika-core:2.1.0")
+    implementation(project(":gspring"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
