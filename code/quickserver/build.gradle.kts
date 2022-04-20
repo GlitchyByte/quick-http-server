@@ -1,9 +1,9 @@
-// Copyright 2021 GlitchyByte
+// Copyright 2021-2022 GlitchyByte
 // SPDX-License-Identifier: Apache-2.0
 
 plugins {
     application
-    id("org.springframework.boot") version "2.5.6"
+    id("org.springframework.boot") version "2.6.6"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
@@ -29,9 +29,8 @@ tasks.test {
 
 // Setup build info.
 group = "com.glitchybyte.quickserver"
-version = "1.1.0"
+version = "1.1.1"
 
 application {
     mainClass.set("com.glitchybyte.quickserver.App")
 }
-

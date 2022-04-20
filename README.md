@@ -1,5 +1,7 @@
 # Quick Http Server
 
+![Version](https://img.shields.io/badge/Version-1.1.1-green) ![Java](https://img.shields.io/badge/Java-17-orange)
+
 Local web server (http only). Useful for local dev.
 Can also be a starting point for a simple Spring Boot Web app.
 
