@@ -3,7 +3,7 @@
 
 plugins {
     application
-    id("org.springframework.boot") version "2.6.6"
+    id("org.springframework.boot") version "2.7.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
 }
 
@@ -17,19 +17,26 @@ java {
     }
 }
 
+testing {
+    suites {
+        val test by getting(JvmTestSuite::class) {
+            useJUnitJupiter("5.8.2")
+        }
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).takeIf { it > 0 } ?: 1
+}
+
 dependencies {
     implementation(project(":gspring"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
-tasks.test {
-    useJUnitPlatform()
-    maxParallelForks = 4
-}
-
 // Setup build info.
 group = "com.glitchybyte.quickserver"
-version = "1.1.1"
+version = "1.1.2"
 
 application {
     mainClass.set("com.glitchybyte.quickserver.App")
